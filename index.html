@@ -491,3 +491,554 @@
                 localStorage.setItem('menu', JSON.stringify(defaultMenu));
                 console.log('✅ Default 7-day menu initialized in localStorage');
             }
+
+            // Update admin stats
+            updateAdminStats();
+        }
+
+        // ============ UTILITY FUNCTIONS ============
+        function showElement(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function hideElement(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showMessage(id, message, type = 'success') {
+            const element = document.getElementById(id);
+            element.textContent = message;
+            element.className = 'message ' + type;
+            element.style.display = 'block';
+        }
+
+        function hideMessage(id) {
+            const element = document.getElementById(id);
+            element.style.display = 'none';
+        }
+
+        function hideAllForms() {
+            const forms = ['registerForm', 'loginForm', 'adminLoginForm', 'studentDashboard', 
+                           'adminDashboard', 'attendanceForm', 'feesForm', 'menuDisplay', 
+                           'updateMenuForm'];
+            forms.forEach(id => hideElement(id));
+            showElement('mainMenu');
+        }
+
+        function goBack() {
+            hideAllForms();
+            showElement('mainMenu');
+            document.querySelectorAll('.message').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        // ============ DATA ACCESS FUNCTIONS ============
+        function getStudents() {
+            return JSON.parse(localStorage.getItem('students')) || [];
+        }
+
+        function saveStudents(students) {
+            localStorage.setItem('students', JSON.stringify(students));
+        }
+
+        function getAttendance() {
+            return JSON.parse(localStorage.getItem('attendance')) || [];
+        }
+
+        function saveAttendance(attendance) {
+            localStorage.setItem('attendance', JSON.stringify(attendance));
+        }
+
+        function getFees() {
+            return JSON.parse(localStorage.getItem('fees')) || [];
+        }
+
+        function saveFees(fees) {
+            localStorage.setItem('fees', JSON.stringify(fees));
+        }
+
+        function getMenu() {
+            return JSON.parse(localStorage.getItem('menu')) || [];
+        }
+
+        function saveMenu(menu) {
+            localStorage.setItem('menu', JSON.stringify(menu));
+            console.log('✅ Menu saved to localStorage:', menu);
+        }
+
+        function getToday() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function getDayName() {
+            return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()];
+        }
+
+        // ============ ADMIN STATS ============
+        function updateAdminStats() {
+            const students = getStudents();
+            const attendance = getAttendance();
+            const fees = getFees();
+            
+            const totalStudents = students.length;
+            const totalAttendance = attendance.length;
+            const totalPayments = fees.reduce((sum, f) => sum + f.amount, 0);
+            
+            const statsDiv = document.getElementById('adminStats');
+            statsDiv.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">${totalStudents}</div>
+                        <div class="stat-label">👨‍🎓 Total Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalAttendance}</div>
+                        <div class="stat-label">📊 Total Attendance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">₹${totalPayments.toFixed(2)}</div>
+                        <div class="stat-label">💰 Total Payments</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============ REGISTRATION ============
+        function showRegister() {
+            hideAllForms();
+            showElement('registerForm');
+            hideMessage('regMessage');
+            document.getElementById('regId').value = '';
+            document.getElementById('regName').value = '';
+            document.getElementById('regPassword').value = '';
+        }
+
+        function register() {
+            const id = document.getElementById('regId').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+
+            if (!id || !name || !password) {
+                showMessage('regMessage', '❌ Please fill all fields', 'error');
+                return;
+            }
+
+            if (id.length < 3) {
+                showMessage('regMessage', '❌ Student ID must be at least 3 characters', 'error');
+                return;
+            }
+
+            if (password.length < 4) {
+                showMessage('regMessage', '❌ Password must be at least 4 characters', 'error');
+                return;
+            }
+
+            const students = getStudents();
+            if (students.find(s => s.id === id)) {
+                showMessage('regMessage', '❌ Student ID already exists', 'error');
+                return;
+            }
+
+            students.push({
+                id: id,
+                name: name,
+                password: password,
+                balance: 0,
+                created_at: new Date().toISOString()
+            });
+
+            saveStudents(students);
+            showMessage('regMessage', '✅ Student registered successfully!', 'success');
+            document.getElementById('regId').value = '';
+            document.getElementById('regName').value = '';
+            document.getElementById('regPassword').value = '';
+            
+            setTimeout(() => {
+                goBack();
+            }, 1500);
+        }
+
+        // ============ LOGIN ============
+        function showLogin() {
+            hideAllForms();
+            showElement('loginForm');
+            hideMessage('loginMessage');
+            document.getElementById('loginId').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function login() {
+            const id = document.getElementById('loginId').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!id || !password) {
+                showMessage('loginMessage', '❌ Please fill all fields', 'error');
+                return;
+            }
+
+            const students = getStudents();
+            const student = students.find(s => s.id === id && s.password === password);
+
+            if (!student) {
+                showMessage('loginMessage', '❌ Invalid credentials', 'error');
+                return;
+            }
+
+            currentStudentId = id;
+            currentStudentData = student;
+            showMessage('loginMessage', '✅ Login successful!', 'success');
+            
+            setTimeout(() => {
+                hideAllForms();
+                showStudentDashboard(student);
+            }, 1000);
+        }
+
+        // ============ ADMIN LOGIN ============
+        function showAdminLogin() {
+            hideAllForms();
+            showElement('adminLoginForm');
+            hideMessage('adminLoginMessage');
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function adminLogin() {
+            const password = document.getElementById('adminPassword').value.trim();
+
+            if (!password) {
+                showMessage('adminLoginMessage', '❌ Please enter password', 'error');
+                return;
+            }
+
+            if (password === 'admin123') {
+                isAdmin = true;
+                showMessage('adminLoginMessage', '✅ Admin login successful!', 'success');
+                setTimeout(() => {
+                    hideAllForms();
+                    showAdminDashboard();
+                }, 1000);
+            } else {
+                showMessage('adminLoginMessage', '❌ Invalid admin password', 'error');
+            }
+        }
+
+        // ============ STUDENT DASHBOARD ============
+        function showStudentDashboard(student) {
+            hideAllForms();
+            showElement('studentDashboard');
+            document.getElementById('studentDashboardContent').innerHTML = '';
+            
+            const infoDiv = document.getElementById('studentInfo');
+            infoDiv.className = 'student-info';
+            infoDiv.innerHTML = `
+                <p><strong>👤 Student ID:</strong> ${student.id}</p>
+                <p><strong>📛 Name:</strong> ${student.name}</p>
+                <p><strong>💰 Balance:</strong> ₹${(student.balance || 0).toFixed(2)}</p>
+                <p><strong>📅 Today:</strong> ${getDayName()}, ${getToday()}</p>
+            `;
+        }
+
+        function showStudentDashboardContent() {
+            hideAllForms();
+            showElement('studentDashboard');
+            document.getElementById('studentDashboardContent').innerHTML = '';
+            if (currentStudentId) {
+                updateStudentInfo();
+            }
+        }
+
+        function updateStudentInfo() {
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            if (student) {
+                currentStudentData = student;
+                const infoDiv = document.getElementById('studentInfo');
+                infoDiv.innerHTML = `
+                    <p><strong>👤 Student ID:</strong> ${student.id}</p>
+                    <p><strong>📛 Name:</strong> ${student.name}</p>
+                    <p><strong>💰 Balance:</strong> ₹${(student.balance || 0).toFixed(2)}</p>
+                    <p><strong>📅 Today:</strong> ${getDayName()}, ${getToday()}</p>
+                `;
+            }
+        }
+
+        // ============ VIEW MENU ============
+        function viewMenu() {
+            const menu = getMenu();
+            
+            hideAllForms();
+            showElement('menuDisplay');
+            
+            const content = document.getElementById('menuContent');
+            let html = '<h3>📋 Weekly Menu</h3>';
+            html += `<p style="color:#666;font-size:14px;margin-bottom:10px;">📅 Today: ${getDayName()}</p>`;
+            
+            if (menu.length === 0) {
+                html += '<p>⚠️ No menu items found. Please contact admin.</p>';
+            } else {
+                menu.forEach(day => {
+                    const isToday = day.day === getDayName();
+                    html += `
+                        <div class="menu-item" style="${isToday ? 'border: 2px solid #667eea;' : ''}">
+                            <div class="menu-day">📅 ${day.day} ${isToday ? '⭐ Today' : ''}</div>
+                            <div class="menu-grid">
+                                <div class="menu-grid-item"><span class="menu-grid-label">🍳 Breakfast:</span> ${day.breakfast}</div>
+                                <div class="menu-grid-item"><span class="menu-grid-label">🍛 Lunch:</span> ${day.lunch}</div>
+                                <div class="menu-grid-item"><span class="menu-grid-label">🍽️ Dinner:</span> ${day.dinner}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            content.innerHTML = html;
+        }
+
+        function closeMenu() {
+            if (currentStudentId) {
+                showStudentDashboardContent();
+            } else if (isAdmin) {
+                showAdminDashboard();
+            } else {
+                goBack();
+            }
+        }
+
+        // ============ MARK ATTENDANCE ============
+        function showMarkAttendance() {
+            hideAllForms();
+            showElement('attendanceForm');
+            hideMessage('attendanceMessage');
+        }
+
+        function markAttendance() {
+            const mealType = document.getElementById('mealType').value;
+            const today = getToday();
+            
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            
+            if (!student) {
+                showMessage('attendanceMessage', '❌ Student not found', 'error');
+                return;
+            }
+            
+            if (student.balance < 50) {
+                showMessage('attendanceMessage', '❌ Insufficient balance! Please pay fees first.', 'error');
+                return;
+            }
+            
+            const attendance = getAttendance();
+            
+            const existing = attendance.find(a => 
+                a.student_id === currentStudentId && 
+                a.date === today && 
+                a.meal_type === mealType
+            );
+            
+            if (existing) {
+                showMessage('attendanceMessage', `❌ Already marked ${mealType} for today`, 'error');
+                return;
+            }
+            
+            attendance.push({
+                student_id: currentStudentId,
+                date: today,
+                meal_type: mealType,
+                status: 'Present',
+                timestamp: new Date().toISOString()
+            });
+            
+            saveAttendance(attendance);
+            
+            student.balance = (student.balance || 0) - 50;
+            saveStudents(students);
+            currentStudentData = student;
+            updateStudentInfo();
+            
+            showMessage('attendanceMessage', `✅ ${mealType} marked successfully! ₹50 deducted. Remaining: ₹${student.balance.toFixed(2)}`, 'success');
+            
+            setTimeout(() => {
+                showStudentDashboardContent();
+            }, 1500);
+        }
+
+        // ============ PAY FEES ============
+        function showPayFees() {
+            hideAllForms();
+            showElement('feesForm');
+            hideMessage('feesMessage');
+            document.getElementById('feesAmount').value = '';
+        }
+
+        function payFees() {
+            const amount = parseFloat(document.getElementById('feesAmount').value);
+            
+            if (!amount || amount <= 0) {
+                showMessage('feesMessage', '❌ Please enter a valid amount', 'error');
+                return;
+            }
+            
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            
+            if (!student) {
+                showMessage('feesMessage', '❌ Student not found', 'error');
+                return;
+            }
+            
+            student.balance = (student.balance || 0) + amount;
+            saveStudents(students);
+            currentStudentData = student;
+            updateStudentInfo();
+            
+            const fees = getFees();
+            fees.push({
+                student_id: currentStudentId,
+                amount: amount,
+                month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+                paid_date: getToday(),
+                timestamp: new Date().toISOString()
+            });
+            saveFees(fees);
+            
+            showMessage('feesMessage', `✅ ₹${amount.toFixed(2)} added successfully! New Balance: ₹${student.balance.toFixed(2)}`, 'success');
+            document.getElementById('feesAmount').value = '';
+            
+            setTimeout(() => {
+                showStudentDashboardContent();
+            }, 1500);
+        }
+
+        // ============ VIEW MY ATTENDANCE ============
+        function viewMyAttendance() {
+            const attendance = getAttendance();
+            const myRecords = attendance.filter(a => a.student_id === currentStudentId).reverse().slice(0, 20);
+            
+            const content = document.getElementById('studentDashboardContent');
+            if (myRecords.length > 0) {
+                let html = '<h3>📊 Recent Attendance</h3>';
+                myRecords.forEach(record => {
+                    html += `<div class="attendance-record">
+                        📅 ${record.date} | 🍽️ ${record.meal_type} | ✅ Present
+                    </div>`;
+                });
+                if (attendance.filter(a => a.student_id === currentStudentId).length > 20) {
+                    html += `<p style="color:#666;font-size:12px;margin-top:5px;">Showing last 20 records</p>`;
+                }
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No attendance records found</p>';
+            }
+        }
+
+        // ============ CHECK BALANCE ============
+        function checkBalance() {
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            
+            const content = document.getElementById('studentDashboardContent');
+            if (student) {
+                const balance = student.balance || 0;
+                let status = '';
+                if (balance < 0) {
+                    status = '<span class="badge badge-danger">⚠️ Negative Balance</span>';
+                } else if (balance < 100) {
+                    status = '<span class="badge badge-warning">⚠️ Low Balance</span>';
+                } else {
+                    status = '<span class="badge badge-success">✅ Good Balance</span>';
+                }
+                
+                content.innerHTML = `
+                    <div class="student-info">
+                        <h3>💰 Current Balance</h3>
+                        <p style="font-size: 32px; text-align: center; color: #667eea; font-weight: bold;">
+                            ₹${balance.toFixed(2)}
+                        </p>
+                        <p style="text-align: center;">${status}</p>
+                        <p style="text-align: center; font-size: 12px; color: #666; margin-top: 10px;">
+                            💡 Each meal costs ₹50
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // ============ ADMIN DASHBOARD ============
+        function showAdminDashboard() {
+            hideAllForms();
+            showElement('adminDashboard');
+            document.getElementById('adminDashboardContent').innerHTML = '';
+            updateAdminStats();
+        }
+
+        function showAdminDashboardContent() {
+            hideAllForms();
+            showElement('adminDashboard');
+            document.getElementById('adminDashboardContent').innerHTML = '';
+            updateAdminStats();
+        }
+
+        // ============ ADMIN FUNCTIONS ============
+        function viewAllStudents() {
+            const students = getStudents();
+            const content = document.getElementById('adminDashboardContent');
+            
+            if (students.length > 0) {
+                let html = '<h3>📚 All Students</h3>';
+                students.forEach(student => {
+                    const balanceColor = student.balance < 0 ? 'color: #dc3545;' : 'color: #28a745;';
+                    html += `<div class="student-info" style="margin:5px 0">
+                        👤 <strong>${student.id}</strong> | 📛 ${student.name} | 💰 <span style="${balanceColor}">₹${(student.balance || 0).toFixed(2)}</span>
+                        | 📅 ${student.created_at ? student.created_at.split('T')[0] : 'N/A'}
+                    </div>`;
+                });
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No students registered</p>';
+            }
+        }
+
+        function viewAllAttendance() {
+            const attendance = getAttendance();
+            const content = document.getElementById('adminDashboardContent');
+            
+            if (attendance.length > 0) {
+                let html = '<h3>📊 All Attendance Records</h3>';
+                const sorted = [...attendance].reverse().slice(0, 50);
+                sorted.forEach(record => {
+                    html += `<div class="attendance-record">
+                        👤 ${record.student_id} | 📅 ${record.date} | 🍽️ ${record.meal_type} | ✅ ${record.status}
+                    </div>`;
+                });
+                if (attendance.length > 50) {
+                    html += `<p style="color:#666;font-size:12px;margin-top:5px;">Showing last 50 records (Total: ${attendance.length})</p>`;
+                }
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No attendance records found</p>';
+            }
+        }
+
+        function viewAllPayments() {
+            const fees = getFees();
+            const content = document.getElementById('adminDashboardContent');
+            
+            if (fees.length > 0) {
+                let html = '<h3>💰 Payment Records</h3>';
+                const sorted = [...fees].reverse().slice(0, 50);
+                sorted.forEach(fee => {
+                    html += `<div class="fee-record">
+                        👤 ${fee.student_id} | 💰 ₹${fee.amount.toFixed(2)} | 📅 ${fee.month} | 🗓️ ${fee.paid_date}
+                    </div>`;
+                });
+                if (fees.length > 50) {
+                    html += `<p style="color:#666;font-size:12px;margin-top:5px;">Showing last 50 records (Total: ${fees.length})</p>`;
+                }
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No payment records found</p>';
+            }
+        }
+        
