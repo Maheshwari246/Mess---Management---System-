@@ -462,7 +462,11 @@
         let currentStudentData = null;
 
         // ============ DATA INITIALIZATION ============
-        function initializeData() {
+        
+        window.onload = function() {
+initializeData();
+};
+        {
             // Initialize students
             if (!localStorage.getItem('students')) {
                 localStorage.setItem('students', JSON.stringify([]));
