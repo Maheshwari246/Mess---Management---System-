@@ -1636,3 +1636,166 @@
             content.innerHTML = html;
         }
         
+        // ============ UPDATE MENU (SAVES TO LOCALSTORAGE) ============
+        function showUpdateMenu() {
+            const menu = getMenu();
+            
+            hideAllForms();
+            showElement('updateMenuForm');
+            hideMessage('updateMenuMessage');
+            
+            const content = document.getElementById('updateMenuContent');
+            
+            if (menu.length === 0) {
+                content.innerHTML = '<p>⚠️ No menu data found. Please add menu items.</p>';
+                return;
+            }
+            
+            let html = '';
+            menu.forEach(day => {
+                html += `
+                    <div class="menu-edit-item">
+                        <div class="day-label">📅 ${day.day}</div>
+                        <div class="flex-row">
+                            <label>🍳 Breakfast:</label>
+                            <input type="text" id="menu_${day.day}_breakfast" value="${day.breakfast || ''}" placeholder="Enter breakfast">
+                        </div>
+                        <div class="flex-row">
+                            <label>🍛 Lunch:</label>
+                            <input type="text" id="menu_${day.day}_lunch" value="${day.lunch || ''}" placeholder="Enter lunch">
+                        </div>
+                        <div class="flex-row">
+                            <label>🍽️ Dinner:</label>
+                            <input type="text" id="menu_${day.day}_dinner" value="${day.dinner || ''}" placeholder="Enter dinner">
+                        </div>
+                    </div>
+                `;
+            });
+            content.innerHTML = html;
+        }
+
+        function updateMenu() {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const menuData = [];
+            
+            let hasEmpty = false;
+            days.forEach(day => {
+                const breakfast = document.getElementById(`menu_${day}_breakfast`).value.trim();
+                const lunch = document.getElementById(`menu_${day}_lunch`).value.trim();
+                const dinner = document.getElementById(`menu_${day}_dinner`).value.trim();
+                
+                if (!breakfast || !lunch || !dinner) {
+                    hasEmpty = true;
+                }
+                
+                menuData.push({
+                    day: day,
+                    breakfast: breakfast || 'Not Set',
+                    lunch: lunch || 'Not Set',
+                    dinner: dinner || 'Not Set'
+                });
+            });
+            
+            // Save to localStorage
+            saveMenu(menuData);
+            
+            // Verify save
+            const savedMenu = getMenu();
+            console.log('📋 Menu saved successfully:', savedMenu);
+            
+            if (hasEmpty) {
+                showMessage('updateMenuMessage', '⚠️ Some fields were empty and set to "Not Set". Menu saved!', 'error');
+            } else {
+                showMessage('updateMenuMessage', '✅ Menu updated and saved to localStorage successfully!', 'success');
+            }
+            
+            setTimeout(() => {
+                showAdminDashboard();
+            }, 1500);
+        }
+
+        // ============ RESET ALL DATA ============
+        function resetAllData() {
+            if (confirm('⚠️ Are you sure you want to delete ALL data? This cannot be undone!')) {
+                if (confirm('⚠️ Really? All students, attendance, fees, and menu will be deleted!')) {
+                    localStorage.removeItem('students');
+                    localStorage.removeItem('attendance');
+                    localStorage.removeItem('fees');
+                    localStorage.removeItem('menu');
+                    initializeData();
+                    showMessage('adminDashboardContent', '✅ All data has been reset!', 'success');
+                    updateAdminStats();
+                    setTimeout(() => {
+                        document.getElementById('adminDashboardContent').innerHTML = '';
+                    }, 2000);
+                }
+            }
+        }
+
+        // ============ LOGOUT ============
+        function logout() {
+            currentStudentId = null;
+            isAdmin = false;
+            currentStudentData = null;
+            hideAllForms();
+            showElement('mainMenu');
+            document.querySelectorAll('.message').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        function adminLogout() {
+            logout();
+        }
+
+        // ============ EXIT ============
+        function exitApp() {
+            if (confirm('Are you sure you want to exit?')) {
+                logout();
+                document.querySelector('.container').innerHTML = `
+                    <h1 style="color: #667eea;">👋 Thank You!</h1>
+                    <p style="text-align:center;color:#666;font-size:18px;margin:20px 0;">
+                        Thank you for using Mess Management System!
+                    </p>
+                    <p style="text-align:center;color:#999;font-size:14px;">
+                        🔄 Refresh the page to start again.
+                    </p>
+                `;
+            }
+        }
+
+        // ============ KEYBOARD SHORTCUTS ============
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const forms = ['registerForm', 'loginForm', 'adminLoginForm'];
+                for (let formId of forms) {
+                    const form = document.getElementById(formId);
+                    if (!form.classList.contains('hidden')) {
+                        const buttons = form.querySelectorAll('button');
+                        for (let btn of buttons) {
+                            if (btn.textContent.includes('Register') || 
+                                btn.textContent.includes('Login') || 
+                                btn.textContent.includes('Pay') ||
+                                btn.textContent.includes('Save')) {
+                                btn.click();
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        });
+
+        // ============ INITIALIZE ============
+initializeData();
+        
+        console.log('🏫 Mess Management System loaded successfully!');
+        console.log('📊 Data stored in localStorage');
+        console.log('💡 Default Admin Password: admin123');
+        console.log('📌 To view data: Developer Tools → Application → Local Storage');
+        console.log('📋 Current 7-Day Menu:', getMenu());
+        console.log('👨‍🎓 Total Students:', getStudents().length);
+    </script>
+</body>
+</html>
