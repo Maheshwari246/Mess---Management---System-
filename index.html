@@ -862,4 +862,389 @@
                 showStudentDashboardContent();
             }, 1500);
         }
+      // ============ PAY FEES ============
+        function showPayFees() {
+            hideAllForms();
+            showElement('feesForm');
+            hideMessage('feesMessage');
+            document.getElementById('feesAmount').value = '';
+        }
+
+        function payFees() {
+            const amount = parseFloat(document.getElementById('feesAmount').value);
+            
+            if (!amount || amount <= 0) {
+                showMessage('feesMessage', '❌ Please enter a valid amount', 'error');
+                return;
+            }
+            
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            
+            if (!student) {
+                showMessage('feesMessage', '❌ Student not found', 'error');
+                return;
+            }
+            
+            student.balance = (student.balance || 0) + amount;
+            saveStudents(students);
+            currentStudentData = student;
+            updateStudentInfo();
+            
+            const fees = getFees();
+            fees.push({
+                student_id: currentStudentId,
+                amount: amount,
+                month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+                paid_date: getToday(),
+                timestamp: new Date().toISOString()
+            });
+            saveFees(fees);
+            
+            showMessage('feesMessage', `✅ ₹${amount.toFixed(2)} added successfully! New Balance: ₹${student.balance.toFixed(2)}`, 'success');
+            document.getElementById('feesAmount').value = '';
+            
+            setTimeout(() => {
+                showStudentDashboardContent();
+            }, 1500);
+        }
+
+        // ============ VIEW MY ATTENDANCE ============
+        function viewMyAttendance() {
+            const attendance = getAttendance();
+            const myRecords = attendance.filter(a => a.student_id === currentStudentId).reverse().slice(0, 20);
+            
+            const content = document.getElementById('studentDashboardContent');
+            if (myRecords.length > 0) {
+                let html = '<h3>📊 Recent Attendance</h3>';
+                myRecords.forEach(record => {
+                    html += `<div class="attendance-record">
+                        📅 ${record.date} | 🍽️ ${record.meal_type} | ✅ Present
+                    </div>`;
+                });
+                if (attendance.filter(a => a.student_id === currentStudentId).length > 20) {
+                    html += `<p style="color:#666;font-size:12px;margin-top:5px;">Showing last 20 records</p>`;
+                }
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No attendance records found</p>';
+            }
+        }
+
+        // ============ CHECK BALANCE ============
+        function checkBalance() {
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            
+            const content = document.getElementById('studentDashboardContent');
+            if (student) {
+                const balance = student.balance || 0;
+                let status = '';
+                if (balance < 0) {
+                    status = '<span class="badge badge-danger">⚠️ Negative Balance</span>';
+                } else if (balance < 100) {
+                    status = '<span class="badge badge-warning">⚠️ Low Balance</span>';
+                } else {
+                    status = '<span class="badge badge-success">✅ Good Balance</span>';
+                }
+                
+                content.innerHTML = `
+                    <div class="student-info">
+                        <h3>💰 Current Balance</h3>
+                        <p style="font-size: 32px; text-align: center; color: #667eea; font-weight: bold;">
+                            ₹${balance.toFixed(2)}
+                        </p>
+                        <p style="text-align: center;">${status}</p>
+                        <p style="text-align: center; font-size: 12px; color: #666; margin-top: 10px;">
+                            💡 Each meal costs ₹50
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // ============ ADMIN DASHBOARD ============
+        function showAdminDashboard() {
+            hideAllForms();
+            showElement('adminDashboard');
+            document.getElementById('adminDashboardContent').innerHTML = '';
+            updateAdminStats();
+        }
+
+        function showAdminDashboardContent() {
+            hideAllForms();
+            showElement('adminDashboard');
+            document.getElementById('adminDashboardContent').innerHTML = '';
+            updateAdminStats();
+        }
+
+        // ============ ADMIN FUNCTIONS ============
+        function viewAllStudents() {
+            const students = getStudents();
+            const content = document.getElementById('adminDashboardContent');
+            
+            if (students.length > 0) {
+                let html = '<h3>📚 All Students</h3>';
+                students.forEach(student => {
+                    const balanceColor = student.balance < 0 ? 'color: #dc3545;' : 'color: #28a745;';
+                    html += `<div class="student-info" style="margin:5px 0">
+                        👤 <strong>${student.id}</strong> | 📛 ${student.name} | 💰 <span style="${balanceColor}">₹${(student.balance || 0).toFixed(2)}</span>
+                        | 📅 ${student.created_at ? student.created_at.split('T')[0] : 'N/A'}
+                    </div>`;
+                });
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No students registered</p>';
+            }
+        }
+
+        function viewAllAttendance() {
+            const attendance = getAttendance();
+            const content = document.getElementById('adminDashboardContent');
+            
+            if (attendance.length > 0) {
+                let html = '<h3>📊 All Attendance Records</h3>';
+                const sorted = [...attendance].reverse().slice(0, 50);
+                sorted.forEach(record => {
+                    html += `<div class="attendance-record">
+                        👤 ${record.student_id} | 📅 ${record.date} | 🍽️ ${record.meal_type} | ✅ ${record.status}
+                    </div>`;
+                });
+                if (attendance.length > 50) {
+                    html += `<p style="color:#666;font-size:12px;margin-top:5px;">Showing last 50 records (Total: ${attendance.length})</p>`;
+                }
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No attendance records found</p>';
+            }
+        }
+
+        function viewAllPayments() {
+            const fees = getFees();
+            const content = document.getElementById('adminDashboardContent');
+            
+            if (fees.length > 0) {
+                let html = '<h3>💰 Payment Records</h3>';
+                const sorted = [...fees].reverse().slice(0, 50);
+                sorted.forEach(fee => {
+                    html += `<div class="fee-record">
+                        👤 ${fee.student_id} | 💰 ₹${fee.amount.toFixed(2)} | 📅 ${fee.month} | 🗓️ ${fee.paid_date}
+                    </div>`;
+                });
+                if (fees.length > 50) {
+                    html += `<p style="color:#666;font-size:12px;margin-top:5px;">Showing last 50 records (Total: ${fees.length})</p>`;
+                }
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No payment records found</p>';
+            }
+        }
+
+        function viewStudentDetails() {
+            const studentId = prompt('🔍 Enter Student ID:');
+            if (!studentId) return;
+            
+            const students = getStudents();
+            const student = students.find(s => s.id === studentId);
+            
+            const content = document.getElementById('adminDashboardContent');
+            if (!student) {
+                content.innerHTML = '<p class="error">❌ Student not found</p>';
+                return;
+            }
+            
+            const attendance = getAttendance();
+            const myAttendance = attendance.filter(a => a.student_id === studentId);
+            const fees = getFees();
+            const myFees = fees.filter(f => f.student_id === studentId);
+            const totalPaid = myFees.reduce((sum, f) => sum + f.amount, 0);
+            
+            let html = `<h3>📋 Student Details</h3>
+                <div class="student-info">
+                    <p><strong>👤 ID:</strong> ${student.id}</p>
+                    <p><strong>📛 Name:</strong> ${student.name}</p>
+                    <p><strong>💰 Balance:</strong> ₹${(student.balance || 0).toFixed(2)}</p>
+                    <p><strong>📅 Registered:</strong> ${student.created_at ? student.created_at.split('T')[0] : 'N/A'}</p>
+                    <p><strong>💳 Total Paid:</strong> ₹${totalPaid.toFixed(2)}</p>
+                </div>`;
+            
+            if (myAttendance.length > 0) {
+                html += '<h4>📊 Attendance Summary:</h4>';
+                const summary = {};
+                myAttendance.forEach(a => {
+                    summary[a.meal_type] = (summary[a.meal_type] || 0) + 1;
+                });
+                for (let [meal, count] of Object.entries(summary)) {
+                    html += `<div>🍽️ ${meal}: ${count} times</div>`;
+                }
+                html += `<div>📅 Total Days: ${myAttendance.length}</div>`;
+            } else {
+                html += '<p>📭 No attendance records</p>';
+            }
+            
+            content.innerHTML = html;
+        }
+
+        // ============ UPDATE MENU (SAVES TO LOCALSTORAGE) ============
+        function showUpdateMenu() {
+            const menu = getMenu();
+            
+            hideAllForms();
+            showElement('updateMenuForm');
+            hideMessage('updateMenuMessage');
+            
+            const content = document.getElementById('updateMenuContent');
+            
+            if (menu.length === 0) {
+                content.innerHTML = '<p>⚠️ No menu data found. Please add menu items.</p>';
+                return;
+            }
+            
+            let html = '';
+            menu.forEach(day => {
+                html += `
+                    <div class="menu-edit-item">
+                        <div class="day-label">📅 ${day.day}</div>
+                        <div class="flex-row">
+                            <label>🍳 Breakfast:</label>
+                            <input type="text" id="menu_${day.day}_breakfast" value="${day.breakfast || ''}" placeholder="Enter breakfast">
+                        </div>
+                        <div class="flex-row">
+                            <label>🍛 Lunch:</label>
+                            <input type="text" id="menu_${day.day}_lunch" value="${day.lunch || ''}" placeholder="Enter lunch">
+                        </div>
+                        <div class="flex-row">
+                            <label>🍽️ Dinner:</label>
+                            <input type="text" id="menu_${day.day}_dinner" value="${day.dinner || ''}" placeholder="Enter dinner">
+                        </div>
+                    </div>
+                `;
+            });
+            content.innerHTML = html;
+        }
+
+        function updateMenu() {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const menuData = [];
+            
+            let hasEmpty = false;
+            days.forEach(day => {
+                const breakfast = document.getElementById(`menu_${day}_breakfast`).value.trim();
+                const lunch = document.getElementById(`menu_${day}_lunch`).value.trim();
+                const dinner = document.getElementById(`menu_${day}_dinner`).value.trim();
+                
+                if (!breakfast || !lunch || !dinner) {
+                    hasEmpty = true;
+                }
+                
+                menuData.push({
+                    day: day,
+                    breakfast: breakfast || 'Not Set',
+                    lunch: lunch || 'Not Set',
+                    dinner: dinner || 'Not Set'
+                });
+            });
+            
+            // Save to localStorage
+            saveMenu(menuData);
+            
+            // Verify save
+            const savedMenu = getMenu();
+            console.log('📋 Menu saved successfully:', savedMenu);
+            
+            if (hasEmpty) {
+                showMessage('updateMenuMessage', '⚠️ Some fields were empty and set to "Not Set". Menu saved!', 'error');
+            } else {
+                showMessage('updateMenuMessage', '✅ Menu updated and saved to localStorage successfully!', 'success');
+            }
+            
+            setTimeout(() => {
+                showAdminDashboard();
+            }, 1500);
+        }
+
+        // ============ RESET ALL DATA ============
+        function resetAllData() {
+            if (confirm('⚠️ Are you sure you want to delete ALL data? This cannot be undone!')) {
+                if (confirm('⚠️ Really? All students, attendance, fees, and menu will be deleted!')) {
+                    localStorage.removeItem('students');
+                    localStorage.removeItem('attendance');
+                    localStorage.removeItem('fees');
+                    localStorage.removeItem('menu');
+                    initializeData();
+                    showMessage('adminDashboardContent', '✅ All data has been reset!', 'success');
+                    updateAdminStats();
+                    setTimeout(() => {
+                        document.getElementById('adminDashboardContent').innerHTML = '';
+                    }, 2000);
+                }
+            }
+        }
+
+        // ============ LOGOUT ============
+        function logout() {
+            currentStudentId = null;
+            isAdmin = false;
+            currentStudentData = null;
+            hideAllForms();
+            showElement('mainMenu');
+            document.querySelectorAll('.message').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        function adminLogout() {
+            logout();
+        }
+
+        // ============ EXIT ============
+        function exitApp() {
+            if (confirm('Are you sure you want to exit?')) {
+                logout();
+                document.querySelector('.container').innerHTML = `
+                    <h1 style="color: #667eea;">👋 Thank You!</h1>
+                    <p style="text-align:center;color:#666;font-size:18px;margin:20px 0;">
+                        Thank you for using Mess Management System!
+                    </p>
+                    <p style="text-align:center;color:#999;font-size:14px;">
+                        🔄 Refresh the page to start again.
+                    </p>
+                `;
+            }
+        }
+
+        // ============ KEYBOARD SHORTCUTS ============
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const forms = ['registerForm', 'loginForm', 'adminLoginForm'];
+                for (let formId of forms) {
+                    const form = document.getElementById(formId);
+                    if (!form.classList.contains('hidden')) {
+                        const buttons = form.querySelectorAll('button');
+                        for (let btn of buttons) {
+                            if (btn.textContent.includes('Register') || 
+                                btn.textContent.includes('Login') || 
+                                btn.textContent.includes('Pay') ||
+                                btn.textContent.includes('Save')) {
+                                btn.click();
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        });
+
+        // ============ INITIALIZE ============
+initializeData();
         
+        console.log('🏫 Mess Management System loaded successfully!');
+        console.log('📊 Data stored in localStorage');
+        console.log('💡 Default Admin Password: admin123');
+        console.log('📌 To view data: Developer Tools → Application → Local Storage');
+        console.log('📋 Current 7-Day Menu:', getMenu());
+        console.log('👨‍🎓 Total Students:', getStudents().length);
+    </script>
+</body>
+</html>  
