@@ -1,1 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 750px;
+            width: 100%;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        h2, h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        button.btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        button.btn-warning {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #mainMenu, #studentDashboard, #adminDashboard {
+            margin-top: 10px;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        #menuContent, #studentDashboardContent, #adminDashboardContent {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            padding: 10px;
+            margin: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-day {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .student-info {
+            background: #e8f0fe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .student-info p {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .attendance-record, .fee-record {
+            padding: 8px;
+            margin: 5px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .attendance-record:last-child, .fee-record:last-child {
+            border-bottom: none;
+        }
+
+        #updateMenuContent {
+            margin: 15px 0;
+        }
+
+        .menu-edit-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .menu-edit-item .day-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .flex-row label {
+            min-width: 90px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .flex-row input {
+            flex: 1;
+            margin: 0;
+            padding: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .menu-grid-item {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .menu-grid-label {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 13px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-height: 98vh;
+            }
+            
+            h1 {
+                font-size: 1.3em;
+            }
+            
+            button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .flex-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .flex-row label {
+                min-width: auto;
+            }
+
+            .menu-edit-item input {
+                width: 100%;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏫 Mess Management System</h1>
+        
+        <!-- Main Menu -->
+        <div id="mainMenu">
+            <button onclick="showRegister()">📝 1. Student Registration</button>
+            <button onclick="showLogin()">🔐 2. Student Login</button>
+            <button onclick="showAdminLogin()">👑 3. Admin Login</button>
+            <button onclick="viewMenu()">📋 4. View Menu (Public)</button>
+            <button onclick="exitApp()" class="btn-danger">🚪 5. Exit</button>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="registerForm" class="hidden">
+            <h2>📝 Student Registration</h2>
+            <input type="text" id="regId" placeholder="Student ID (min 3 chars)" autocomplete="off">
+            <input type="text" id="regName" placeholder="Full Name" autocomplete="off">
+            <input type="password" id="regPassword" placeholder="Create Password (min 4 chars)">
+            <button onclick="register()" class="btn-success">✅ Register</button>
+            <button onclick="goBack()">⬅️ Back</button>
+            <div id="regMessage" class="message"></div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="hidden">
+            <h2>🔐 Student Login</h2>
+            <input type="text" id="loginId" placeholder="Student ID" autocomplete="off">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button onclick="login()" class="btn-success">✅ Login</button>
+            <button onclick="goBack()">⬅️ Back</button>
+            <div id="loginMessage" class="message"></div>
+        </div>
+
+        <!-- Admin Login -->
+        <div id="adminLoginForm" class="hidden">
+            <h2>👑 Admin Login</h2>
+            <input type="password" id="adminPassword" placeholder="Admin Password">
+            <button onclick="adminLogin()" class="btn-success">✅ Login</button>
+            <button onclick="goBack()">⬅️ Back</button>
+            <div id="adminLoginMessage" class="message"></div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="studentDashboard" class="hidden">
+            <h2>🎯 Student Dashboard</h2>
+            <div id="studentInfo"></div>
+            <button onclick="viewMenu()">📋 1. View Menu</button>
+            <button onclick="showMarkAttendance()">✅ 2. Mark Attendance</button>
+            <button onclick="showPayFees()">💰 3. Pay Fees</button>
+            <button onclick="viewMyAttendance()">📊 4. View My Attendance</button>
+            <button onclick="checkBalance()">💳 5. Check Balance</button>
+            <button onclick="logout()" class="btn-danger">🚪 6. Logout</button>
+            <div id="studentDashboardContent"></div>
+        </div>
+
+        <!-- Mark Attendance -->
+        <div id="attendanceForm" class="hidden">
+            <h3>✅ Mark Attendance</h3>
+            <p style="color: #666; margin-bottom: 10px;">💰 ₹50 will be deducted from your balance</p>
+            <select id="mealType">
+                <option value="Breakfast">🍳 Breakfast</option>
+                <option value="Lunch">🍛 Lunch</option>
+                <option value="Dinner">🍽️ Dinner</option>
+            </select>
+            <button onclick="markAttendance()" class="btn-success">✅ Submit</button>
+            <button onclick="showStudentDashboardContent()">⬅️ Back</button>
+            <div id="attendanceMessage" class="message"></div>
+        </div>
+
+        <!-- Pay Fees -->
+        <div id="feesForm" class="hidden">
+            <h3>💰 Pay Fees</h3>
+            <input type="number" id="feesAmount" placeholder="Amount (₹)" step="0.01" min="1">
+            <button onclick="payFees()" class="btn-success">💰 Pay Now</button>
+            <button onclick="showStudentDashboardContent()">⬅️ Back</button>
+            <div id="feesMessage" class="message"></div>
+        </div>
+
+        <!-- View Menu -->
+        <div id="menuDisplay" class="hidden">
+            <h2>📋 Weekly Menu</h2>
+            <div id="menuContent"></div>
+            <button onclick="closeMenu()">⬅️ Back</button>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="hidden">
+            <h2>👑 Admin Dashboard</h2>
+            <div id="adminStats"></div>
+            <button onclick="viewAllStudents()">📚 1. View All Students</button>
+            <button onclick="viewAllAttendance()">📊 2. View All Attendance</button>
+            <button onclick="viewAllPayments()">💰 3. View All Payments</button>
+            <button onclick="showUpdateMenu()">📝 4. Update Menu</button>
+            <button onclick="viewStudentDetails()">🔍 5. View Student Details</button>
+            <button onclick="resetAllData()" class="btn-danger">⚠️ 6. Reset All Data</button>
+            <button onclick="adminLogout()" class="btn-warning">🚪 7. Back to Main Menu</button>
+            <div id="adminDashboardContent"></div>
+        </div>
+
+        <!-- Update Menu -->
+        <div id="updateMenuForm" class="hidden">
+            <h3>📝 Update Weekly Menu</h3>
+            <p style="color: #666; margin-bottom: 10px;">Edit the menu items for each day below:</p>
+            <div id="updateMenuContent"></div>
+            <button onclick="updateMenu()" class="btn-success">💾 Save Changes</button>
+            <button onclick="showAdminDashboard()">⬅️ Back</button>
+            <div id="updateMenuMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // MESS MANAGEMENT SYSTEM - Full Version
+        // All data stored in browser localStorage
+        // ============================================
+
+        // Current state
+        let currentStudentId = null;
+        let isAdmin = false;
+        let currentStudentData = null;
+
+        // ============ DATA INITIALIZATION ============
+        function initializeData() {
+            // Initialize students
+            if (!localStorage.getItem('students')) {
+                localStorage.setItem('students', JSON.stringify([]));
+            }
+
+            // Initialize attendance
+            if (!localStorage.getItem('attendance')) {
+                localStorage.setItem('attendance', JSON.stringify([]));
+            }
+
+            // Initialize fees
+            if (!localStorage.getItem('fees')) {
+                localStorage.setItem('fees', JSON.stringify([]));
+            }
+
+            // Initialize menu with default 7-day menu
+            if (!localStorage.getItem('menu')) {
+                const defaultMenu = [
+                    { day: 'Monday', breakfast: 'Idli & Sambar', lunch: 'Rice, Dal, Veg Curry', dinner: 'Chapati, Paneer' },
+                    { day: 'Tuesday', breakfast: 'Dosa & Chutney', lunch: 'Biryani, Raita', dinner: 'Roti, Mixed Veg' },
+                    { day: 'Wednesday', breakfast: 'Poha & Tea', lunch: 'Rice, Sambar, Fry', dinner: 'Chapati, Dal' },
+                    { day: 'Thursday', breakfast: 'Upma & Chutney', lunch: 'Rice, Curd, Veg', dinner: 'Paratha, Pickle' },
+                    { day: 'Friday', breakfast: 'Idli & Chutney', lunch: 'Rice, Dal, Veg Curry', dinner: 'Roti, Paneer' },
+                    { day: 'Saturday', breakfast: 'Dosa & Sambar', lunch: 'Special Rice', dinner: 'Chapati, Mixed Veg' },
+                    { day: 'Sunday', breakfast: 'Puri & Aloo', lunch: 'Festival Special', dinner: 'Roti, Dal' }
+                ];
+                localStorage.setItem('menu', JSON.stringify(defaultMenu));
+                console.log('✅ Default 7-day menu initialized in localStorage');
+            }
