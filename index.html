@@ -1245,6 +1245,32 @@ initializeData();
         console.log('📌 To view data: Developer Tools → Application → Local Storage');
         console.log('📋 Current 7-Day Menu:', getMenu());
         console.log('👨‍🎓 Total Students:', getStudents().length);
+        
+        function updateMenu() {
+    const menu = getMenu();
+    const updatedMenu = [];
+
+    menu.forEach((day, index) => {
+        const breakfast = document.getElementById(`breakfast_${index}`).value.trim();
+        const lunch = document.getElementById(`lunch_${index}`).value.trim();
+        const dinner = document.getElementById(`dinner_${index}`).value.trim();
+
+        updatedMenu.push({
+            day: day.day,
+            breakfast: breakfast || 'N/A',
+            lunch: lunch || 'N/A',
+            dinner: dinner || 'N/A'
+        });
+    });
+
+    saveMenu(updatedMenu);
+    showMessage('updateMenuMessage', '✅ Menu updated successfully!', 'success');
+
+    setTimeout(() => {
+        viewMenu();
+    }, 1000);
+}
+
     </script>
 </body>
 </html>  
