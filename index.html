@@ -1,1 +1,1250 @@
+[22/06, 6:12 pm] Maheshwari: <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 750px;
+            width: 100%;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        h2, h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        button.btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        button.btn-warning {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #mainMenu, #studentDashboard, #adminDashboard {
+            margin-top: 10px;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        #menuContent, #studentDashboardContent, #adminDashboardContent {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            padding: 10px;
+            margin: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-day {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .student-info {
+            background: #e8f0fe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .student-info p {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .attendance-record, .fee-record {
+            padding: 8px;
+            margin: 5px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .attendance-record:last-child, .fee-record:last-child {
+            border-bottom: none;
+        }
+
+        #updateMenuContent {
+            margin: 15px 0;
+        }
+
+        .menu-edit-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .menu-edit-item .day-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .flex-row label {
+            min-width: 90px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .flex-row input {
+            flex: 1;
+            margin: 0;
+            padding: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .menu-grid-item {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .menu-grid-label {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 13px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-height: 98vh;
+            }
+            
+            h1 {
+                font-size: 1.3em;
+            }
+            
+            button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .flex-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .flex-row label {
+                min-width: auto;
+            }
+
+            .menu-edit-item input {
+                width: 100%;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏫 Mess Management System</h1>
+        
+        <!-- Main Menu -->
+        <div id="mainMenu">
+            <button onclick="showRegister()">📝 1. Student Registration</button>
+            <button onclick="showLogin()">🔐 2. Student Login</button>
+            <button onclick="showAdminLogin()">👑 3. Admin Login</button>
+            <button onclick="viewMenu()">📋 4. View Menu (Public)</button>
+            <button onclick="exitApp()" class="btn-danger">🚪 5. Exit</button>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="registerForm" class="hidden">
+            <h2>📝 Student Registration</h2>
+            <input type="text" id="regId" placeholder="Student ID (min 3 chars)" autocomplete="off">
+            <input type="text" id="regName" placeholder="Full Name" autocomplete="off">
+            <input type="password" id="regPassword" placeholder="Create Password (min 4 chars)">
+            <button onclick="register()" class="btn-success">✅ Register</button>
+            <button onclick="goBack()">⬅️ Back</button>
+            <div id="regMessage" class="message"></div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="hidden">
+            <h2>🔐 Student Login</h2>
+            <input type="text" id="loginId" placeholder="Student ID" autocomplete="off">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button onclick="login()" class="btn-success">✅ Login</button>
+            <button onclick="goBack()">⬅️ Back</button>
+            <div id="loginMessage" class="message"></div>
+        </div>
+
+        <!-- Admin Login -->
+        <div id="adminLoginForm" class="hidden">
+            <h2>👑 Admin Login</h2>
+            <input type="password" id="adminPassword" placeholder="Admin Password">
+            <button onclick="adminLogin()" class="btn-success">✅ Login</button>
+            <button onclick="goBack()">⬅️ Back</button>
+            <div id="adminLoginMessage" class="message"></div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="studentDashboard" class="hidden">
+            <h2>🎯 Student Dashboard</h2>
+            <div id="studentInfo"></div>
+            <button onclick="viewMenu()">📋 1. View Menu</button>
+            <button onclick="showMarkAttendance()">✅ 2. Mark Attendance</button>
+            <button onclick="showPayFees()">💰 3. Pay Fees</button>
+            <button onclick="viewMyAttendance()">📊 4. View My Attendance</button>
+            <button onclick="checkBalance()">💳 5. Check Balance</button>
+            <button onclick="logout()" class="btn-danger">🚪 6. Logout</button>
+            <div id="studentDashboardContent"></div>
+        </div>
+
+        <!-- Mark Attendance -->
+        <div id="attendanceForm" class="hidden">
+            <h3>✅ Mark Attendance</h3>
+            <p style="color: #666; margin-bottom: 10px;">💰 ₹50 will be deducted from your balance</p>
+            <select id="mealType">
+                <option value="Breakfast">🍳 Breakfast</option>
+                <option value="Lunch">🍛 Lunch</option>
+                <option value="Dinner">🍽️ Dinner</option>
+            </select>
+            <button onclick="markAttendance()" class="btn-success">✅ Submit</button>
+            <button onclick="showStudentDashboardContent()">⬅️ Back</button>
+            <div id="attendanceMessage" class="message"></div>
+        </div>
+
+        <!-- Pay Fees -->
+        <div id="feesForm" class="hidden">
+            <h3>💰 Pay Fees</h3>
+            <input type="number" id="feesAmount" placeholder="Amount (₹)" step="0.01" min="1">
+            <button onclick="payFees()" class="btn-success">💰 Pay Now</button>
+            <button onclick="showStudentDashboardContent()">⬅️ Back</button>
+            <div id="feesMessage" class="message"></div>
+        </div>
+
+        <!-- View Menu -->
+        <div id="menuDisplay" class="hidden">
+            <h2>📋 Weekly Menu</h2>
+            <div id="menuContent"></div>
+            <button onclick="closeMenu()">⬅️ Back</button>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="hidden">
+            <h2>👑 Admin Dashboard</h2>
+            <div id="adminStats"></div>
+            <button onclick="viewAllStudents()">📚 1. View All Students</button>
+            <button onclick="viewAllAttendance()">📊 2. View All Attendance</button>
+            <button onclick="viewAllPayments()">💰 3. View All Payments</button>
+            <button onclick="showUpdateMenu()">📝 4. Update Menu</button>
+            <button onclick="viewStudentDetails()">🔍 5. View Student Details</button>
+            <button onclick="resetAllData()" class="btn-danger">⚠️ 6. Reset All Data</button>
+            <button onclick="adminLogout()" class="btn-warning">🚪 7. Back to Main Menu</button>
+            <div id="adminDashboardContent"></div>
+        </div>
+
+        <!-- Update Menu -->
+        <div id="updateMenuForm" class="hidden">
+            <h3>📝 Update Weekly Menu</h3>
+            <p style="color: #666; margin-bottom: 10px;">Edit the menu items for each day below:</p>
+            <div id="updateMenuContent"></div>
+            <button onclick="updateMenu()" class="btn-success">💾 Save Changes</button>
+            <button onclick="showAdminDashboard()">⬅️ Back</button>
+            <div id="updateMenuMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // MESS MANAGEMENT SYSTEM - Full Version
+        // All data stored in browser localStorage
+        // ============================================
+
+        // Current state
+        let currentStudentId = null;
+        let isAdmin = false;
+        let currentStudentData = null;
+
+        // ============ DATA INITIALIZATION ============
+        function initializeData() {
+            // Initialize students
+            if (!localStorage.getItem('students')) {
+                localStorage.setItem('students', JSON.stringify([]));
+            }
+
+            // Initialize attendance
+            if (!localStorage.getItem('attendance')) {
+                localStorage.setItem('attendance', JSON.stringify([]));
+            }
+
+            // Initialize fees
+            if (!localStorage.getItem('fees')) {
+                localStorage.setItem('fees', JSON.stringify([]));
+            }
+
+            // Initialize menu with default 7-day menu
+            if (!localStorage.getItem('menu')) {
+                const defaultMenu = [
+                    { day: 'Monday', breakfast: 'Idli & Sambar', lunch: 'Rice, Dal, Veg Curry', dinner: 'Chapati, Paneer' },
+                    { day: 'Tuesday', breakfast: 'Dosa & Chutney', lunch: 'Biryani, Raita', dinner: 'Roti, Mixed Veg' },
+                    { day: 'Wednesday', breakfast: 'Poha & Tea', lunch: 'Rice, Sambar, Fry', dinner: 'Chapati, Dal' },
+                    { day: 'Thursday', breakfast: 'Upma & Chutney', lunch: 'Rice, Curd, Veg', dinner: 'Paratha, Pickle' },
+                    { day: 'Friday', breakfast: 'Idli & Chutney', lunch: 'Rice, Dal, Veg Curry', dinner: 'Roti, Paneer' },
+                    { day: 'Saturday', breakfast: 'Dosa & Sambar', lunch: 'Special Rice', dinner: 'Chapati, Mixed Veg' },
+                    { day: 'Sunday', breakfast: 'Puri & Aloo', lunch: 'Festival Special', dinner: 'Roti, Dal' }
+                ];
+                localStorage.setItem('menu', JSON.stringify(defaultMenu));
+                console.log('✅ Default 7-day menu initialized in localStorage');
+            }
+[22/06, 6:14 pm] Maheshwari: // Update admin stats
+            updateAdminStats();
+        }
+
+        // ============ UTILITY FUNCTIONS ============
+        function showElement(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function hideElement(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showMessage(id, message, type = 'success') {
+            const element = document.getElementById(id);
+            element.textContent = message;
+            element.className = 'message ' + type;
+            element.style.display = 'block';
+        }
+
+        function hideMessage(id) {
+            const element = document.getElementById(id);
+            element.style.display = 'none';
+        }
+
+        function hideAllForms() {
+            const forms = ['registerForm', 'loginForm', 'adminLoginForm', 'studentDashboard', 
+                           'adminDashboard', 'attendanceForm', 'feesForm', 'menuDisplay', 
+                           'updateMenuForm'];
+            forms.forEach(id => hideElement(id));
+            showElement('mainMenu');
+        }
+
+        function goBack() {
+            hideAllForms();
+            showElement('mainMenu');
+            document.querySelectorAll('.message').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        // ============ DATA ACCESS FUNCTIONS ============
+        function getStudents() {
+            return JSON.parse(localStorage.getItem('students')) || [];
+        }
+
+        function saveStudents(students) {
+            localStorage.setItem('students', JSON.stringify(students));
+        }
+
+        function getAttendance() {
+            return JSON.parse(localStorage.getItem('attendance')) || [];
+        }
+
+        function saveAttendance(attendance) {
+            localStorage.setItem('attendance', JSON.stringify(attendance));
+        }
+
+        function getFees() {
+            return JSON.parse(localStorage.getItem('fees')) || [];
+        }
+
+        function saveFees(fees) {
+            localStorage.setItem('fees', JSON.stringify(fees));
+        }
+
+        function getMenu() {
+            return JSON.parse(localStorage.getItem('menu')) || [];
+        }
+
+        function saveMenu(menu) {
+            localStorage.setItem('menu', JSON.stringify(menu));
+            console.log('✅ Menu saved to localStorage:', menu);
+        }
+
+        function getToday() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function getDayName() {
+            return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()];
+        }
+
+        // ============ ADMIN STATS ============
+        function updateAdminStats() {
+            const students = getStudents();
+            const attendance = getAttendance();
+            const fees = getFees();
+            
+            const totalStudents = students.length;
+            const totalAttendance = attendance.length;
+            const totalPayments = fees.reduce((sum, f) => sum + f.amount, 0);
+            
+            const statsDiv = document.getElementById('adminStats');
+            statsDiv.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">${totalStudents}</div>
+                        <div class="stat-label">👨‍🎓 Total Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalAttendance}</div>
+                        <div class="stat-label">📊 Total Attendance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">₹${totalPayments.toFixed(2)}</div>
+                        <div class="stat-label">💰 Total Payments</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============ REGISTRATION ============
+        function showRegister() {
+            hideAllForms();
+            showElement('registerForm');
+            hideMessage('regMessage');
+            document.getElementById('regId').value = '';
+            document.getElementById('regName').value = '';
+            document.getElementById('regPassword').value = '';
+        }
+
+        function register() {
+            const id = document.getElementById('regId').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+
+            if (!id || !name || !password) {
+                showMessage('regMessage', '❌ Please fill all fields', 'error');
+                return;
+            }
+
+            if (id.length < 3) {
+                showMessage('regMessage', '❌ Student ID must be at least 3 characters', 'error');
+                return;
+            }
+
+            if (password.length < 4) {
+                showMessage('regMessage', '❌ Password must be at least 4 characters', 'error');
+                return;
+            }
+
+            const students = getStudents();
+            if (students.find(s => s.id === id)) {
+                showMessage('regMessage', '❌ Student ID already exists', 'error');
+                return;
+            }
+
+            students.push({
+                id: id,
+                name: name,
+                password: password,
+                balance: 0,
+                created_at: new Date().toISOString()
+            });
+
+            saveStudents(students);
+            showMessage('regMessage', '✅ Student registered successfully!', 'success');
+            document.getElementById('regId').value = '';
+            document.getElementById('regName').value = '';
+            document.getElementById('regPassword').value = '';
+            
+            setTimeout(() => {
+                goBack();
+            }, 1500);
+        }
+
+        // ============ LOGIN ============
+        function showLogin() {
+            hideAllForms();
+            showElement('loginForm');
+            hideMessage('loginMessage');
+            document.getElementById('loginId').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function login() {
+            const id = document.getElementById('loginId').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!id || !password) {
+                showMessage('loginMessage', '❌ Please fill all fields', 'error');
+                return;
+            }
+
+            const students = getStudents();
+            const student = students.find(s => s.id === id && s.password === password);
+
+            if (!student) {
+                showMessage('loginMessage', '❌ Invalid credentials', 'error');
+                return;
+            }
+
+            currentStudentId = id;
+            currentStudentData = student;
+            showMessage('loginMessage', '✅ Login successful!', 'success');
+            
+            setTimeout(() => {
+                hideAllForms();
+                showStudentDashboard(student);
+            }, 1000);
+        }
+
+        // ============ ADMIN LOGIN ============
+        function showAdminLogin() {
+            hideAllForms();
+            showElement('adminLoginForm');
+            hideMessage('adminLoginMessage');
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function adminLogin() {
+            const password = document.getElementById('adminPassword').value.trim();
+
+            if (!password) {
+                showMessage('adminLoginMessage', '❌ Please enter password', 'error');
+                return;
+            }
+
+            if (password === 'admin123') {
+                isAdmin = true;
+                showMessage('adminLoginMessage', '✅ Admin login successful!', 'success');
+                setTimeout(() => {
+                    hideAllForms();
+                    showAdminDashboard();
+                }, 1000);
+            } else {
+                showMessage('adminLoginMessage', '❌ Invalid admin password', 'error');
+            }
+        }
+
+        // ============ STUDENT DASHBOARD ============
+        function showStudentDashboard(student) {
+            hideAllForms();
+            showElement('studentDashboard');
+            document.getElementById('studentDashboardContent').innerHTML = '';
+            
+            const infoDiv = document.getElementById('studentInfo');
+            infoDiv.className = 'student-info';
+            infoDiv.innerHTML = `
+                <p><strong>👤 Student ID:</strong> ${student.id}</p>
+                <p><strong>📛 Name:</strong> ${student.name}</p>
+                <p><strong>💰 Balance:</strong> ₹${(student.balance || 0).toFixed(2)}</p>
+                <p><strong>📅 Today:</strong> ${getDayName()}, ${getToday()}</p>
+            `;
+        }
+
+        function showStudentDashboardContent() {
+            hideAllForms();
+            showElement('studentDashboard');
+            document.getElementById('studentDashboardContent').innerHTML = '';
+            if (currentStudentId) {
+                updateStudentInfo();
+            }
+        }
+
+        function updateStudentInfo() {
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            if (student) {
+                currentStudentData = student;
+                const infoDiv = document.getElementById('studentInfo');
+                infoDiv.innerHTML = `
+                    <p><strong>👤 Student ID:</strong> ${student.id}</p>
+                    <p><strong>📛 Name:</strong> ${student.name}</p>
+                    <p><strong>💰 Balance:</strong> ₹${(student.balance || 0).toFixed(2)}</p>
+                    <p><strong>📅 Today:</strong> ${getDayName()}, ${getToday()}</p>
+                `;
+            }
+        }
+
+        // ============ VIEW MENU ============
+        function viewMenu() {
+            const menu = getMenu();
+            
+            hideAllForms();
+            showElement('menuDisplay');
+            
+            const content = document.getElementById('menuContent');
+            let html = '<h3>📋 Weekly Menu</h3>';
+            html += `<p style="color:#666;font-size:14px;margin-bottom:10px;">📅 Today: ${getDayName()}</p>`;
+            
+            if (menu.length === 0) {
+                html += '<p>⚠️ No menu items found. Please contact admin.</p>';
+            } else {
+                menu.forEach(day => {
+                    const isToday = day.day === getDayName();
+                    html += `
+                        <div class="menu-item" style="${isToday ? 'border: 2px solid #667eea;' : ''}">
+                            <div class="menu-day">📅 ${day.day} ${isToday ? '⭐ Today' : ''}</div>
+                            <div class="menu-grid">
+                                <div class="menu-grid-item"><span class="menu-grid-label">🍳 Breakfast:</span> ${day.breakfast}</div>
+                                <div class="menu-grid-item"><span class="menu-grid-label">🍛 Lunch:</span> ${day.lunch}</div>
+                                <div class="menu-grid-item"><span class="menu-grid-label">🍽️ Dinner:</span> ${day.dinner}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            content.innerHTML = html;
+        }
+
+        function closeMenu() {
+            if (currentStudentId) {
+                showStudentDashboardContent();
+            } else if (isAdmin) {
+                showAdminDashboard();
+            } else {
+                goBack();
+            }
+        }
+
+        // ============ MARK ATTENDANCE ============
+        function showMarkAttendance() {
+            hideAllForms();
+            showElement('attendanceForm');
+            hideMessage('attendanceMessage');
+        }
+
+        function markAttendance() {
+            const mealType = document.getElementById('mealType').value;
+            const today = getToday();
+            
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            
+            if (!student) {
+                showMessage('attendanceMessage', '❌ Student not found', 'error');
+                return;
+            }
+            
+            if (student.balance < 50) {
+                showMessage('attendanceMessage', '❌ Insufficient balance! Please pay fees first.', 'error');
+                return;
+            }
+            
+            const attendance = getAttendance();
+            
+            const existing = attendance.find(a => 
+                a.student_id === currentStudentId && 
+                a.date === today && 
+                a.meal_type === mealType
+            );
+            
+            if (existing) {
+                showMessage('attendanceMessage', `❌ Already marked ${mealType} for today`, 'error');
+                return;
+            }
+            
+            attendance.push({
+                student_id: currentStudentId,
+                date: today,
+                meal_type: mealType,
+                status: 'Present',
+                timestamp: new Date().toISOString()
+            });
+            
+            saveAttendance(attendance);
+            
+            student.balance = (student.balance || 0) - 50;
+            saveStudents(students);
+            currentStudentData = student;
+            updateStudentInfo();
+            
+            showMessage('attendanceMessage', `✅ ${mealType} marked successfully! ₹50 deducted. Remaining: ₹${student.balance.toFixed(2)}`, 'success');
+            
+            setTimeout(() => {
+                showStudentDashboardContent();
+            }, 1500);
+        }
+[22/06, 6:17 pm] Maheshwari: // ============ PAY FEES ============
+        function showPayFees() {
+            hideAllForms();
+            showElement('feesForm');
+            hideMessage('feesMessage');
+            document.getElementById('feesAmount').value = '';
+        }
+
+        function payFees() {
+            const amount = parseFloat(document.getElementById('feesAmount').value);
+            
+            if (!amount || amount <= 0) {
+                showMessage('feesMessage', '❌ Please enter a valid amount', 'error');
+                return;
+            }
+            
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            
+            if (!student) {
+                showMessage('feesMessage', '❌ Student not found', 'error');
+                return;
+            }
+            
+            student.balance = (student.balance || 0) + amount;
+            saveStudents(students);
+            currentStudentData = student;
+            updateStudentInfo();
+            
+            const fees = getFees();
+            fees.push({
+                student_id: currentStudentId,
+                amount: amount,
+                month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+                paid_date: getToday(),
+                timestamp: new Date().toISOString()
+            });
+            saveFees(fees);
+            
+            showMessage('feesMessage', `✅ ₹${amount.toFixed(2)} added successfully! New Balance: ₹${student.balance.toFixed(2)}`, 'success');
+            document.getElementById('feesAmount').value = '';
+            
+            setTimeout(() => {
+                showStudentDashboardContent();
+            }, 1500);
+        }
+
+        // ============ VIEW MY ATTENDANCE ============
+        function viewMyAttendance() {
+            const attendance = getAttendance();
+            const myRecords = attendance.filter(a => a.student_id === currentStudentId).reverse().slice(0, 20);
+            
+            const content = document.getElementById('studentDashboardContent');
+            if (myRecords.length > 0) {
+                let html = '<h3>📊 Recent Attendance</h3>';
+                myRecords.forEach(record => {
+                    html += `<div class="attendance-record">
+                        📅 ${record.date} | 🍽️ ${record.meal_type} | ✅ Present
+                    </div>`;
+                });
+                if (attendance.filter(a => a.student_id === currentStudentId).length > 20) {
+                    html += `<p style="color:#666;font-size:12px;margin-top:5px;">Showing last 20 records</p>`;
+                }
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No attendance records found</p>';
+            }
+        }
+
+        // ============ CHECK BALANCE ============
+        function checkBalance() {
+            const students = getStudents();
+            const student = students.find(s => s.id === currentStudentId);
+            
+            const content = document.getElementById('studentDashboardContent');
+            if (student) {
+                const balance = student.balance || 0;
+                let status = '';
+                if (balance < 0) {
+                    status = '<span class="badge badge-danger">⚠️ Negative Balance</span>';
+                } else if (balance < 100) {
+                    status = '<span class="badge badge-warning">⚠️ Low Balance</span>';
+                } else {
+                    status = '<span class="badge badge-success">✅ Good Balance</span>';
+                }
+                
+                content.innerHTML = `
+                    <div class="student-info">
+                        <h3>💰 Current Balance</h3>
+                        <p style="font-size: 32px; text-align: center; color: #667eea; font-weight: bold;">
+                            ₹${balance.toFixed(2)}
+                        </p>
+                        <p style="text-align: center;">${status}</p>
+                        <p style="text-align: center; font-size: 12px; color: #666; margin-top: 10px;">
+                            💡 Each meal costs ₹50
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // ============ ADMIN DASHBOARD ============
+        function showAdminDashboard() {
+            hideAllForms();
+            showElement('adminDashboard');
+            document.getElementById('adminDashboardContent').innerHTML = '';
+            updateAdminStats();
+        }
+
+        function showAdminDashboardContent() {
+            hideAllForms();
+            showElement('adminDashboard');
+            document.getElementById('adminDashboardContent').innerHTML = '';
+            updateAdminStats();
+        }
+
+        // ============ ADMIN FUNCTIONS ============
+        function viewAllStudents() {
+            const students = getStudents();
+            const content = document.getElementById('adminDashboardContent');
+            
+            if (students.length > 0) {
+                let html = '<h3>📚 All Students</h3>';
+                students.forEach(student => {
+                    const balanceColor = student.balance < 0 ? 'color: #dc3545;' : 'color: #28a745;';
+                    html += `<div class="student-info" style="margin:5px 0">
+                        👤 <strong>${student.id}</strong> | 📛 ${student.name} | 💰 <span style="${balanceColor}">₹${(student.balance || 0).toFixed(2)}</span>
+                        | 📅 ${student.created_at ? student.created_at.split('T')[0] : 'N/A'}
+                    </div>`;
+                });
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No students registered</p>';
+            }
+        }
+
+        function viewAllAttendance() {
+            const attendance = getAttendance();
+            const content = document.getElementById('adminDashboardContent');
+            
+            if (attendance.length > 0) {
+                let html = '<h3>📊 All Attendance Records</h3>';
+                const sorted = [...attendance].reverse().slice(0, 50);
+                sorted.forEach(record => {
+                    html += `<div class="attendance-record">
+                        👤 ${record.student_id} | 📅 ${record.date} | 🍽️ ${record.meal_type} | ✅ ${record.status}
+                    </div>`;
+                });
+                if (attendance.length > 50) {
+                    html += `<p style="color:#666;font-size:12px;margin-top:5px;">Showing last 50 records (Total: ${attendance.length})</p>`;
+                }
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No attendance records found</p>';
+            }
+        }
+
+        function viewAllPayments() {
+            const fees = getFees();
+            const content = document.getElementById('adminDashboardContent');
+            
+            if (fees.length > 0) {
+                let html = '<h3>💰 Payment Records</h3>';
+                const sorted = [...fees].reverse().slice(0, 50);
+                sorted.forEach(fee => {
+                    html += `<div class="fee-record">
+                        👤 ${fee.student_id} | 💰 ₹${fee.amount.toFixed(2)} | 📅 ${fee.month} | 🗓️ ${fee.paid_date}
+                    </div>`;
+                });
+                if (fees.length > 50) {
+                    html += `<p style="color:#666;font-size:12px;margin-top:5px;">Showing last 50 records (Total: ${fees.length})</p>`;
+                }
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p>📭 No payment records found</p>';
+            }
+        }
+
+        function viewStudentDetails() {
+            const studentId = prompt('🔍 Enter Student ID:');
+            if (!studentId) return;
+            
+            const students = getStudents();
+            const student = students.find(s => s.id === studentId);
+            
+            const content = document.getElementById('adminDashboardContent');
+            if (!student) {
+                content.innerHTML = '<p class="error">❌ Student not found</p>';
+                return;
+            }
+            
+            const attendance = getAttendance();
+            const myAttendance = attendance.filter(a => a.student_id === studentId);
+            const fees = getFees();
+            const myFees = fees.filter(f => f.student_id === studentId);
+            const totalPaid = myFees.reduce((sum, f) => sum + f.amount, 0);
+            
+            let html = `<h3>📋 Student Details</h3>
+                <div class="student-info">
+                    <p><strong>👤 ID:</strong> ${student.id}</p>
+                    <p><strong>📛 Name:</strong> ${student.name}</p>
+                    <p><strong>💰 Balance:</strong> ₹${(student.balance || 0).toFixed(2)}</p>
+                    <p><strong>📅 Registered:</strong> ${student.created_at ? student.created_at.split('T')[0] : 'N/A'}</p>
+                    <p><strong>💳 Total Paid:</strong> ₹${totalPaid.toFixed(2)}</p>
+                </div>`;
+            
+            if (myAttendance.length > 0) {
+                html += '<h4>📊 Attendance Summary:</h4>';
+                const summary = {};
+                myAttendance.forEach(a => {
+                    summary[a.meal_type] = (summary[a.meal_type] || 0) + 1;
+                });
+                for (let [meal, count] of Object.entries(summary)) {
+                    html += `<div>🍽️ ${meal}: ${count} times</div>`;
+                }
+                html += `<div>📅 Total Days: ${myAttendance.length}</div>`;
+            } else {
+                html += '<p>📭 No attendance records</p>';
+            }
+            
+            content.innerHTML = html;
+        }
+
+        // ============ UPDATE MENU (SAVES TO LOCALSTORAGE) ============
+        function showUpdateMenu() {
+            const menu = getMenu();
+            
+            hideAllForms();
+            showElement('updateMenuForm');
+            hideMessage('updateMenuMessage');
+            
+            const content = document.getElementById('updateMenuContent');
+            
+            if (menu.length === 0) {
+                content.innerHTML = '<p>⚠️ No menu data found. Please add menu items.</p>';
+                return;
+            }
+            
+            let html = '';
+            menu.forEach(day => {
+                html += `
+                    <div class="menu-edit-item">
+                        <div class="day-label">📅 ${day.day}</div>
+                        <div class="flex-row">
+                            <label>🍳 Breakfast:</label>
+                            <input type="text" id="menu_${day.day}_breakfast" value="${day.breakfast || ''}" placeholder="Enter breakfast">
+                        </div>
+                        <div class="flex-row">
+                            <label>🍛 Lunch:</label>
+                            <input type="text" id="menu_${day.day}_lunch" value="${day.lunch || ''}" placeholder="Enter lunch">
+                        </div>
+                        <div class="flex-row">
+                            <label>🍽️ Dinner:</label>
+                            <input type="text" id="menu_${day.day}_dinner" value="${day.dinner || ''}" placeholder="Enter dinner">
+                        </div>
+                    </div>
+                `;
+            });
+            content.innerHTML = html;
+        }
+
+        function updateMenu() {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const menuData = [];
+            
+            let hasEmpty = false;
+            days.forEach(day => {
+                const breakfast = document.getElementById(`menu_${day}_breakfast`).value.trim();
+                const lunch = document.getElementById(`menu_${day}_lunch`).value.trim();
+                const dinner = document.getElementById(`menu_${day}_dinner`).value.trim();
+                
+                if (!breakfast || !lunch || !dinner) {
+                    hasEmpty = true;
+                }
+                
+                menuData.push({
+                    day: day,
+                    breakfast: breakfast || 'Not Set',
+                    lunch: lunch || 'Not Set',
+                    dinner: dinner || 'Not Set'
+                });
+            });
+            
+            // Save to localStorage
+            saveMenu(menuData);
+            
+            // Verify save
+            const savedMenu = getMenu();
+            console.log('📋 Menu saved successfully:', savedMenu);
+            
+            if (hasEmpty) {
+                showMessage('updateMenuMessage', '⚠️ Some fields were empty and set to "Not Set". Menu saved!', 'error');
+            } else {
+                showMessage('updateMenuMessage', '✅ Menu updated and saved to localStorage successfully!', 'success');
+            }
+            
+            setTimeout(() => {
+                showAdminDashboard();
+            }, 1500);
+        }
+
+        // ============ RESET ALL DATA ============
+        function resetAllData() {
+            if (confirm('⚠️ Are you sure you want to delete ALL data? This cannot be undone!')) {
+                if (confirm('⚠️ Really? All students, attendance, fees, and menu will be deleted!')) {
+                    localStorage.removeItem('students');
+                    localStorage.removeItem('attendance');
+                    localStorage.removeItem('fees');
+                    localStorage.removeItem('menu');
+                    initializeData();
+                    showMessage('adminDashboardContent', '✅ All data has been reset!', 'success');
+                    updateAdminStats();
+                    setTimeout(() => {
+                        document.getElementById('adminDashboardContent').innerHTML = '';
+                    }, 2000);
+                }
+            }
+        }
+
+        // ============ LOGOUT ============
+        function logout() {
+            currentStudentId = null;
+            isAdmin = false;
+            currentStudentData = null;
+            hideAllForms();
+            showElement('mainMenu');
+            document.querySelectorAll('.message').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        function adminLogout() {
+            logout();
+        }
+
+        // ============ EXIT ============
+        function exitApp() {
+            if (confirm('Are you sure you want to exit?')) {
+                logout();
+                document.querySelector('.container').innerHTML = `
+                    <h1 style="color: #667eea;">👋 Thank You!</h1>
+                    <p style="text-align:center;color:#666;font-size:18px;margin:20px 0;">
+                        Thank you for using Mess Management System!
+                    </p>
+                    <p style="text-align:center;color:#999;font-size:14px;">
+                        🔄 Refresh the page to start again.
+                    </p>
+                `;
+            }
+        }
+
+        // ============ KEYBOARD SHORTCUTS ============
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const forms = ['registerForm', 'loginForm', 'adminLoginForm'];
+                for (let formId of forms) {
+                    const form = document.getElementById(formId);
+                    if (!form.classList.contains('hidden')) {
+                        const buttons = form.querySelectorAll('button');
+                        for (let btn of buttons) {
+                            if (btn.textContent.includes('Register') || 
+                                btn.textContent.includes('Login') || 
+                                btn.textContent.includes('Pay') ||
+                                btn.textContent.includes('Save')) {
+                                btn.click();
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        });
+
+        // ============ INITIALIZE ============
+initializeData();
+        
+        console.log('🏫 Mess Management System loaded successfully!');
+        console.log('📊 Data stored in localStorage');
+        console.log('💡 Default Admin Password: admin123');
+        console.log('📌 To view data: Developer Tools → Application → Local Storage');
+        console.log('📋 Current 7-Day Menu:', getMenu());
+        console.log('👨‍🎓 Total Students:', getStudents().length);
+    </script>
+</body>
+</html>
